@@ -1,0 +1,79 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <RTClib.h>
+#include <myPushButton.h>
+
+// Pin definitions
+#define pinLed1 6
+#define pinLed2 9
+#define pinBuz 11
+#define pinBot1 7
+#define pinBot2 8
+#define pinMag1 12
+#define pinMag2 13
+
+// Time intervals for medication reminders (days, hours, minutes, seconds)
+#define Intervalo1 0,0,0,15 // ex. every 15 seconds for testing
+#define Intervalo2 0,0,0,60  // ex. every 60 seconds for testing
+
+// LCD configuration (16 columns, 2 rows)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// RTC and button objects
+RTC_DS1307 rtc;
+myPushButton gaveta1(pinBot1);
+myPushButton gaveta2(pinBot2);
+
+// Variables for time and reminders
+DateTime horarioAtual;
+DateTime horaRemedio1;
+DateTime horaRemedio2;
+unsigned long ultimaAtualizaca…
+[11:29, 24/05/2024] +55 11 91558-7587: para o arduino
+[11:29, 24/05/2024] +55 11 91558-7587: /* Fill-in information from Blynk Device Info here */
+#define BLYNK_TEMPLATE_ID "TMPL2xU_0sx_a"
+#define BLYNK_TEMPLATE_NAME "Medbox"
+#define BLYNK_AUTH_TOKEN "igbv3yXUwipjSphiW2RpuGNPzLCpPVr_"
+/* Comment this out to disable prints and save space */
+#define BLYNK_PRINT Serial
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+
+// WiFi credentials
+char ssid[] = "iPhone (2)";
+char pass[] = "yyyyyyyy";
+
+void setup() {
+  Serial.begin(115200);
+
+  // Initialize Blynk
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  Serial.println("ESP32 setup complete");
+}
+
+void loop() {
+  Blynk.run();
+
+  if (Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+
+    if (input.startsWith("S1:")) {
+      int sensorState1 = input.substring(3, 4).toInt();
+      int sensorState2 = input.substring(8, 9).toInt();
+
+      Blynk.virtualWrite(V1, sensorState1);
+      Blynk.virtualWrite(V2, sensorState2);
+
+      if (input.indexOf("R1") != -1) {
+        Blynk.notify("Hora de tomar o remédio 1!");
+      }
+      if (input.indexOf("R2") != -1) {
+        Blynk.notify("Hora de tomar o remédio 2!");
+      }
+    }
+  }
+}
